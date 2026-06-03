@@ -293,7 +293,8 @@ async def admin_start(message: Message) -> None:
     clear_pending_answer(message.from_user.id)
     clear_id_search_buffer(message.from_user.id)
     await message.answer(
-        "<b>AskBot — Admin</b>\n\n"
+        "👑 <b>AskBot — Admin</b>\n\n"
+        "You are the administrator — <b>no verification or approval is needed</b>.\n\n"
         "Use the <b>keyboard below</b> (two buttons per row) to open a section, "
         "or use the <b>inline</b> shortcuts in the next message.\n"
         "All section actions stay button-driven.",
