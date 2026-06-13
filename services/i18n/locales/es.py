@@ -170,7 +170,13 @@ MESSAGES = {
         "✅ Pregunta recibida\n\n"
         "Tu pregunta ha sido enviada al administrador.\n\n"
         "📊 Preguntas restantes hoy: {remaining}/{limit}\n\n"
-        "Recibirás respuesta lo antes posible."
+        "Recibirás una respuesta en un plazo de 24 a 48 horas."
+    ),
+    "q.received_quick": (
+        "✅ Pregunta rápida recibida\n\n"
+        "Tu pregunta ha sido enviada al administrador.\n\n"
+        "🟢 Las preguntas rápidas son ilimitadas y no consumen tu cuota mensual de preguntas legales VIP.\n\n"
+        "Recibirás una respuesta en un plazo de 24 a 48 horas."
     ),
     "q.error_generic": "❌ Error\n\nHubo un error procesando tu pregunta. Inténtalo de nuevo.",
     "q.error_forwarding": (

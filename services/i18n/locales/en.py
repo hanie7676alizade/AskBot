@@ -287,13 +287,13 @@ MESSAGES = {
         "✅ Question Received\n\n"
         "Your question has been sent to the admin.\n\n"
         "📊 Remaining VIP Legal questions this month: {remaining}/{limit}\n\n"
-        "You'll receive a response as soon as possible."
+        "You'll receive a response within 24–48 hours."
     ),
     "q.received_quick": (
         "✅ Quick Question Received\n\n"
         "Your question has been sent to the admin.\n\n"
         "🟢 Quick Questions are unlimited and do not consume your monthly VIP Legal quota.\n\n"
-        "You'll receive a response as soon as possible."
+        "You'll receive a response within 24–48 hours."
     ),
     "q.pick_type_prompt": (
         "❓ <b>What type of question is this?</b>\n\n"

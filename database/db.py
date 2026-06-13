@@ -13,14 +13,57 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-# Create database engine
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./ask_bot.db")
+logger = logging.getLogger(__name__)
 
-engine = create_engine(
-    DATABASE_URL,
-    echo=False,  # Set to True for SQL logging in development
-    connect_args={"check_same_thread": False} if "sqlite" in DATABASE_URL else {},
-    pool_pre_ping=True,  # Check connection health
+# Default to a local SQLite file when DATABASE_URL is unset — keeps local dev
+# zero-config. Production sets DATABASE_URL to a PostgreSQL DSN (e.g. Render).
+DEFAULT_SQLITE_URL = "sqlite:///./ask_bot.db"
+
+
+def get_database_url() -> str:
+    """Resolve the active database URL.
+
+    - DATABASE_URL unset      → local SQLite file (dev default).
+    - DATABASE_URL set        → used as-is (PostgreSQL in production).
+
+    Render (and some other hosts) hand out URLs with the legacy ``postgres://``
+    scheme, which SQLAlchemy 2.x no longer recognizes — normalize it to the
+    ``postgresql://`` form psycopg2 expects so the same value works everywhere.
+    """
+    url = os.getenv("DATABASE_URL", "").strip() or DEFAULT_SQLITE_URL
+    if url.startswith("postgres://"):
+        url = "postgresql://" + url[len("postgres://"):]
+    return url
+
+
+def is_sqlite_url(url: str) -> bool:
+    return url.startswith("sqlite")
+
+
+# Resolve once at import time (the engine is a process-wide singleton).
+DATABASE_URL = get_database_url()
+_IS_SQLITE = is_sqlite_url(DATABASE_URL)
+
+# Engine options differ per backend:
+#   - SQLite needs check_same_thread=False (we share the connection across the
+#     asyncio event loop + worker threads) and does NOT support real pooling.
+#   - PostgreSQL benefits from connection recycling so Render's idle-connection
+#     reaping doesn't hand us a dead socket.
+_engine_kwargs = {
+    "echo": False,  # Set to True for SQL logging in development
+    "pool_pre_ping": True,  # Check connection health before using a pooled conn
+}
+if _IS_SQLITE:
+    _engine_kwargs["connect_args"] = {"check_same_thread": False}
+else:
+    # Recycle connections every 5 minutes; harmless ceiling on connection age.
+    _engine_kwargs["pool_recycle"] = 300
+
+engine = create_engine(DATABASE_URL, **_engine_kwargs)
+
+logger.info(
+    "Database engine initialized (backend=%s)",
+    "sqlite" if _IS_SQLITE else engine.dialect.name,
 )
 
 # Create session factory
